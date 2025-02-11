@@ -1,6 +1,5 @@
-from datetime import timezone
-from django.utils import timezone
-from djongo import models
+from mongoengine import Document, StringField, EmailField, DateTimeField
+from datetime import datetime
 
 STATUS_CHOICES = (
     ('beginner', 'Beginner'),
@@ -8,15 +7,14 @@ STATUS_CHOICES = (
     ('advanced', 'Advanced'),
 )
 
-class User(models.Model):
-    """Main user model representing a user document in the 'users' collection."""
-    _id = models.ObjectIdField()
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField(unique=True)
-    level = models.CharField(max_length=50, choices=STATUS_CHOICES, default='beginner')
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
+class User(Document):
+    first_name = StringField(max_length=50, required=True)
+    last_name = StringField(max_length=50, required=True)
+    email = EmailField(unique=True, required=True)
+    level = StringField(choices=["beginner", "intermediate", "advanced"], default="beginner")
+    birthday = DateTimeField()
     
-    class Meta:
-        db_table = 'users'
+    created_at = DateTimeField(default=datetime.utcnow)
+    updated_at = DateTimeField(default=datetime.utcnow)
+
+    meta = {'collection': 'users'}
